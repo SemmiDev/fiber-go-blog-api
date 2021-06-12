@@ -1,0 +1,23 @@
+DROP DATABASE blog_api;
+CREATE DATABASE blog_api;
+USE blog_api;
+
+CREATE TABLE IF NOT EXISTS `account` (
+     `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+     `name` VARCHAR (255) NOT NULL,
+     `email` VARCHAR (255) NOT NULL UNIQUE,
+     `password` VARCHAR (255) NOT NULL,
+     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+     `updated_at` DATETIME
+);
+
+CREATE TABLE IF NOT EXISTS `post` (
+      `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      `title` VARCHAR(255) NOT NULL,
+      `body` TEXT NOT NULL,
+      `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+      `updated_at` DATETIME,
+      `account_id` BIGINT NOT NULL REFERENCES account(id)
+);
+
+SHOW TABLES;
