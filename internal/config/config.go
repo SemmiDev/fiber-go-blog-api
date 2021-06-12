@@ -1,8 +1,8 @@
 package config
 
 import (
+	"github.com/SemmiDev/fiber-go-blog/internal/logger"
 	_ "github.com/joho/godotenv/autoload" // load .env file automatically
-	"log"
 	"os"
 	"strconv"
 	"time"
@@ -13,9 +13,6 @@ type Config struct {
 
 	HttpRateLimitRequest int
 	HttpRateLimitTime    time.Duration
-
-	JwtSecretKey string
-	JwtTTL       time.Duration
 
 	PaginationLimit int
 
@@ -36,64 +33,52 @@ type Config struct {
 	RedisTTL      time.Duration
 }
 
-func panicIfNeeded(err error, i int) {
-	if err != nil {
-		log.Println(err.Error() + " : LINE", i)
-	}
-}
-
 func load() Config {
 	AppPort := os.Getenv("SERVER_URL")
 
 	HttpRateLimitRequest, err := strconv.Atoi(os.Getenv("HttpRateLimitRequest"))
-	panicIfNeeded(err, 50)
+	logger.Log().Err(err)
 
 	HttpRateLimitTime,err := time.ParseDuration(os.Getenv("HttpRateLimitTime"))
-	panicIfNeeded(err, 53)
-
-	JwtSecretKey := os.Getenv("JwtSecretKey")
-	JwtTTL, err := time.ParseDuration(os.Getenv("JwtTTL"))
-	panicIfNeeded(err, 57)
+	logger.Log().Err(err)
 
 	PaginationLimit, err := strconv.Atoi(os.Getenv("PaginationLimit"))
-	panicIfNeeded(err, 60)
+	logger.Log().Err(err)
 
 	MysqlUser := os.Getenv("MysqlUser")
 	MysqlPassword := os.Getenv("MysqlPassword")
 	MysqlHost := os.Getenv("MysqlHost")
 	MysqlPort,err := strconv.Atoi(os.Getenv("MysqlPort"))
-	panicIfNeeded(err, 66)
+	logger.Log().Err(err)
 
 	MysqlDatabase := os.Getenv("MysqlDatabase")
 	MysqlMaxIdleConns,err := strconv.Atoi(os.Getenv("MysqlMaxIdleConns"))
-	panicIfNeeded(err, 70)
+	logger.Log().Err(err)
 
 	MysqlMaxOpenConns,err := strconv.Atoi(os.Getenv("MysqlMaxOpenConns"))
-	panicIfNeeded(err, 73)
+	logger.Log().Err(err)
 
 	MysqlConnMaxLifetime,err := time.ParseDuration(os.Getenv("MysqlConnMaxLifetime"))
-	panicIfNeeded(err, 76)
+	logger.Log().Err(err)
 
 	RedisPassword := os.Getenv("RedisPassword")
 	RedisHost := os.Getenv("RedisHost")
 	RedisPort,err := strconv.Atoi(os.Getenv("RedisPort"))
-	panicIfNeeded(err, 81)
+	logger.Log().Err(err)
 
 	RedisDatabase, err := strconv.Atoi(os.Getenv("RedisDatabase"))
-	panicIfNeeded(err, 84)
+	logger.Log().Err(err)
 
 	RedisPoolSize, err := strconv.Atoi(os.Getenv("RedisPoolSize"))
-	panicIfNeeded(err, 87)
+	logger.Log().Err(err)
 
 	RedisTTL,err := time.ParseDuration(os.Getenv("RedisTTL"))
-	panicIfNeeded(err, 90)
+	logger.Log().Err(err)
 
 	return Config{
 		AppPort:              AppPort,
 		HttpRateLimitRequest: HttpRateLimitRequest,
 		HttpRateLimitTime:    HttpRateLimitTime,
-		JwtSecretKey:         JwtSecretKey,
-		JwtTTL:               JwtTTL,
 		PaginationLimit:      PaginationLimit,
 		MysqlUser:            MysqlUser,
 		MysqlPassword:        MysqlPassword,
