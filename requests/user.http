@@ -1,0 +1,11 @@
+POST localhost:8888/users
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name": "RAHMATUL Izzah AnniSA",
+  "username": "izzaah",
+  "email": "izzaah@gmail.com",
+  "password": "izzaaah",
+  "avatar_path": "test_path"
+}
