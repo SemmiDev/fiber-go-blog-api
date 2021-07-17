@@ -1,4 +1,4 @@
-module github.com/SemmiDev/fiber-go-blog
+module github.com/SemmiDev/go-blog
 
 go 1.16
 
