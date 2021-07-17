@@ -1,1 +1,0 @@
-docker exec -it 1a31d11b16a0 psql -d fiber_go_blog -U sammidev

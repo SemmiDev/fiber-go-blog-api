@@ -1,99 +1,104 @@
 package main
 
 import (
-	"github.com/SemmiDev/fiber-go-blog/infrastructure/auth"
-	"github.com/SemmiDev/fiber-go-blog/infrastructure/persistence"
-	"github.com/SemmiDev/fiber-go-blog/interfaces"
-	"github.com/SemmiDev/fiber-go-blog/interfaces/middleware"
+	auth2 "github.com/SemmiDev/fiber-go-blog/base/infrastructure/auth"
+	config2 "github.com/SemmiDev/fiber-go-blog/base/infrastructure/config"
+	persistence2 "github.com/SemmiDev/fiber-go-blog/base/infrastructure/persistence"
+	interfaces2 "github.com/SemmiDev/fiber-go-blog/base/interfaces"
+	middleware2 "github.com/SemmiDev/fiber-go-blog/base/interfaces/middleware"
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
-	"os/signal"
 )
 
-func init() {
-	//To load our environmental variables.
-	if err := godotenv.Load(); err != nil {
-		log.Println("no env gotten")
+func panicIfNeeded(err error) {
+	if err != nil {
+		panic(err)
 	}
 }
 
 func main() {
-	dbdriver := os.Getenv("DB_DRIVER")
-	host := os.Getenv("DB_HOST")
-	password := os.Getenv("DB_PASSWORD")
-	user := os.Getenv("DB_USER")
-	dbname := os.Getenv("DB_NAME")
-	port := os.Getenv("DB_PORT")
-
-	//redis details
-	redis_host := os.Getenv("REDIS_HOST")
-	redis_port := os.Getenv("REDIS_PORT")
-	redis_password := os.Getenv("REDIS_PASSWORD")
-
-	services, err := persistence.NewRepositories(dbdriver, user, password, port, host, dbname)
-	if err != nil {
-		panic(err)
-	}
+	cfg := config2.NewConfig()
+	services, err := persistence2.NewRepositories(cfg.Driver, cfg.User, cfg.Password, cfg.Port, cfg.Host, cfg.DBName)
+	panicIfNeeded(err)
 	defer services.Close()
+
+	// warning: dev only
+	services.DropTables()
+	// migrate
 	services.Automigrate()
 
-	redisService, err := auth.NewRedisDB(redis_host, redis_port, redis_password)
-	if err != nil {
-		log.Fatal(err)
-	}
+	redisService, err := auth2.NewRedisDB(cfg.RedisHost, cfg.RedisPort, cfg.RedisPassword)
+	panicIfNeeded(err)
+	tk := auth2.NewToken()
 
-	tk := auth.NewToken()
-	users := interfaces.NewUsers(services.User, redisService.Auth, tk)
+	authenticate := interfaces2.NewAuthenticate(services.User, redisService.Auth, tk)
+	users := interfaces2.NewUsers(services.User, redisService.Auth, tk)
+	posts := interfaces2.NewPosts(services.User, services.Post, redisService.Auth, tk)
 
 	app := fiber.New()
+	middleware2.CORSMiddleware(app)
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World 👋!")
+		return c.Status(fiber.StatusOK).SendString("hii 👋!")
 	})
 
-	middleware.CORSMiddleware(app)
+	v1 := app.Group("/api/v1")
+
+	//authentication routes
+	v1.Post("/login", authenticate.Login)
+	v1.Post("/logout", authenticate.Logout)
+	v1.Post("/refresh", authenticate.Refresh)
 
 	//user routes
-	usersRoute := app.Group("/users")
-	usersRoute.Post("/", users.SaveUser)
-	usersRoute.Get("/", users.FindAllUsers)
-	usersRoute.Get("/users/:user_id", users.FindUserByID)
+	v1.Post("/users", users.SaveUser)
+	v1.Get("/users", users.FindAllUsers)
+	v1.Get("/users/:user_id", users.FindUserByID)
+	v1.Delete("/users/:user_id", users.DeleteAUser).Use(middleware2.AuthMiddleware())
+
+	//post routes
+	v1.Post("/posts", posts.CreatePost).Use(middleware2.AuthMiddleware())
+	v1.Get("/posts", posts.GetPosts)
+	v1.Get("/posts/:post_id", posts.GetPost)
+	//v1.Put("/posts/:id", middlewares.TokenAuthMiddleware(), s.UpdatePost)
+	//v1.Delete("/posts/:id", middlewares.TokenAuthMiddleware(), s.DeletePost)
+	v1.Get("/user_posts/:user_id", posts.GetUserPosts)
 
 	//Starting the application
-	app_port := os.Getenv("PORT") //using heroku host
-	if app_port == "" {
-		app_port = "8888" //localhost
+	appPort := os.Getenv("API_PORT") //using heroku host
+	if appPort == "" {
+		appPort = "9090" //localhost
 	}
 
-	StartServer(app, app_port)
+	log.Fatal(app.Listen(":" + appPort))
+
+	//StartServer(app, appPort)
 }
 
 // StartServer function for starting server with a graceful shutdown.
-func StartServer(app *fiber.App, port string) {
-
-	// Create channel for idle connections.
-	idleConsClosed := make(chan struct{})
-
-	go func() {
-		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt) // Catch OS signals.
-		<-sigint
-
-		// Received an interrupt signal, shutdown.
-		if err := app.Shutdown(); err != nil {
-			// Error from closing listeners, or context timeout:
-			log.Printf("Oops... Server is not shutting down! Reason: %v", err)
-		}
-
-		close(idleConsClosed)
-	}()
-
-	// Run server.
-	if err := app.Listen(":" + port); err != nil {
-		log.Printf("Oops... Server is not running! Reason: %v", err)
-	}
-
-	<-idleConsClosed
-}
+//func StartServer(app *fiber.App, port string) {
+//
+//	// Create channel for idle connections.
+//	idleConsClosed := make(chan struct{})
+//
+//	go func() {
+//		sigint := make(chan os.Signal, 1)
+//		signal.Notify(sigint, os.Interrupt) // Catch OS signals.
+//		<-sigint
+//
+//		// Received an interrupt signal, shutdown.
+//		if err := app.Shutdown(); err != nil {
+//			// Error from closing listeners, or context timeout:
+//			log.Printf("Oops... Server is not shutting down! Reason: %v", err)
+//		}
+//
+//		close(idleConsClosed)
+//	}()
+//
+//	// Run server.
+//	if err := app.Listen(":" + port); err != nil {
+//		log.Printf("Oops... Server is not running! Reason: %v", err)
+//	}
+//
+//	<-idleConsClosed
+//}

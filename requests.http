@@ -1,0 +1,74 @@
+// CREATE A USER
+POST localhost:9090/api/v1/users
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name": "RAHMATUL Izzah AnniSA",
+  "username": "izzaah",
+  "email": "izzaah@gmail.com",
+  "password": "izzaaah",
+  "avatar_path": "test_path"
+}
+
+### GET A USER
+GET localhost:9090/api/v1/users/1
+Accept: application/json
+
+### GET ALLL USERS
+GET localhost:9090/api/v1/users
+Accept: application/json
+
+### LOGIN FOR GET TOKEN AND STORE IN REDIS
+POST localhost:9090/api/v1/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "izzaah@gmail.com",
+  "password": "izzaaah"
+}
+
+### LOGOUT AND REMOVE TOKEN IN REDIS
+POST localhost:9090/api/v1/logout
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NfdXVpZCI6ImIzODEwYmYxLWUyNDQtNDVmNy04NjI2LWY0ZWM3MmZjNDVmMCIsImF1dGhvcml6ZWQiOnRydWUsImV4cCI6MTYyNjQ0MTQ5MCwidXNlcl9pZCI6NX0.8GQoIK3-ZiX4MCY9SFqKReiZWhICkd_wSiGGxWew6OU
+
+### REFRESH
+POST localhost:9090/api/v1/refresh
+Accept: application/json
+Content-Type: application/json
+
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MjcwNDUzNTksInJlZnJlc2hfdXVpZCI6ImFhNzc2YmM4LWNlNzktNDg3MC1iZTc1LWIwNDg2MTkyMGUyNisrNSIsInVzZXJfaWQiOjV9.6UjYG5RvLFijuVByStF87wa5L0HQi_SGuHb9ThgbBL4"
+}
+
+### DELETE A USER (AUTH: COMPARE USER_ID AND USER_ID IN TOKEN METADATA)
+DELETE localhost:9090/api/v1/users/1
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NfdXVpZCI6ImI4NGQwNzAzLTUyZDUtNGI1YS1hM2NiLWE1NDE4YjFkMTE3ZiIsImF1dGhvcml6ZWQiOnRydWUsImV4cCI6MTYyNjQ0NDk5NiwidXNlcl9pZCI6MX0.cM3ARGmYEyq-ZSyz-t_VVj4KH2Z_x76ZXrTY9CuGplw
+
+### CREATE A POST
+POST localhost:9090/api/v1/posts
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NfdXVpZCI6IjYyZGMzOGJjLTQzYjYtNDgyMy05ZjE5LTlkMWJlNzVlYzJjZCIsImF1dGhvcml6ZWQiOnRydWUsImV4cCI6MTYyNjUyNzM0OSwidXNlcl9pZCI6MX0.A-VFabjjoixvjyfJTVgYRJ0dFo_x-xn3VV8DMuJpOxs
+Content-Type: application/json
+
+{
+  "title": "belajar js",
+  "content": "xixixiix"
+}
+
+### GET POSTS
+GET localhost:9090/api/v1/posts
+Accept: application/json
+Content-Type: application/json
+
+
+### GET POST
+GET localhost:9090/api/v1/posts/1
+Accept: application/json
+Content-Type: application/json
+
+
+### GET USER POST

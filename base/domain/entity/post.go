@@ -18,7 +18,7 @@ type Post struct {
 
 func (p *Post) Prepare() {
 	p.Title = html.EscapeString(strings.TrimSpace(p.Title))
-	p.Content = html.EscapeString(strings.TrimSpace(p.Content))
+	//p.Content = html.EscapeString(strings.TrimSpace(p.Content))
 	p.Author = User{}
 	p.CreatedAt = time.Now()
 	p.UpdatedAt = time.Now()

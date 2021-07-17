@@ -1,14 +1,14 @@
 package middleware
 
 import (
-	"github.com/SemmiDev/fiber-go-blog/infrastructure/auth"
+	auth2 "github.com/SemmiDev/fiber-go-blog/base/infrastructure/auth"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func AuthMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		err := auth.TokenValid(c)
+		err := auth2.TokenValid(c)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"success": false,

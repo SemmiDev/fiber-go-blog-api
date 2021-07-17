@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"github.com/SemmiDev/fiber-go-blog/infrastructure/security"
+	security2 "github.com/SemmiDev/fiber-go-blog/base/infrastructure/security"
 	"github.com/badoux/checkmail"
 	"html"
 	"os"
@@ -45,7 +45,7 @@ func (u *User) PublicUser() interface{} {
 }
 
 func (u *User) BeforeSave() error {
-	hashedPassword, err := security.Hash(u.Password)
+	hashedPassword, err := security2.Hash(u.Password)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (u *User) Validate(action string) map[string]string {
 	var errorMessages = make(map[string]string)
 	var err error
 
-	switch strings.ToLower(action) {
+	switch action {
 	case "UPDATE":
 		if u.Email == "" {
 			errorMessages["Required_email"] = ErrRequiredEmail.Error()

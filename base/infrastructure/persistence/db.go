@@ -2,18 +2,19 @@ package persistence
 
 import (
 	"fmt"
-	"github.com/SemmiDev/fiber-go-blog/domain/entity"
-	"github.com/SemmiDev/fiber-go-blog/domain/repository"
+	entity2 "github.com/SemmiDev/fiber-go-blog/base/domain/entity"
+	repository2 "github.com/SemmiDev/fiber-go-blog/base/domain/repository"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"log"
 )
 
 type Repositories struct {
-	User          repository.UserRepository
-	Post          repository.PostRepository
-	Comment       repository.CommentRepository
-	Like          repository.LikeRepository
-	ResetPassword repository.ResetPasswordRepository
+	User          repository2.UserRepository
+	Post          repository2.PostRepository
+	Comment       repository2.CommentRepository
+	Like          repository2.LikeRepository
+	ResetPassword repository2.ResetPasswordRepository
 	db            *gorm.DB
 }
 
@@ -43,10 +44,24 @@ func (s *Repositories) Close() error {
 // Automigrate This migrate all tables
 func (s *Repositories) Automigrate() error {
 	return s.db.AutoMigrate(
-		&entity.User{},
-		&entity.Post{},
-		&entity.Comment{},
-		&entity.Like{},
-		&entity.ResetPassword{},
+		&entity2.User{},
+		&entity2.Post{},
+		&entity2.Comment{},
+		&entity2.Like{},
+		&entity2.ResetPassword{},
 	).Error
+}
+
+// DropTables This drop all tables (for dev only)
+func (s *Repositories) DropTables() {
+	err := s.db.DropTableIfExists(
+		&entity2.User{},
+		&entity2.Post{},
+		&entity2.Comment{},
+		&entity2.Like{},
+		&entity2.ResetPassword{},
+	).Error
+	if err != nil {
+		log.Fatalf("cannot drop table: %v", err)
+	}
 }
