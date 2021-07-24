@@ -1,8 +1,6 @@
-package controllers
+package app
 
 import (
-	"github.com/SemmiDev/go-blog/internal/app/domain"
-	"github.com/SemmiDev/go-blog/internal/helper"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 )
@@ -42,8 +40,8 @@ func (s *Server) LikePost(c *fiber.Ctx) error {
 	}
 
 	// check if the user exist:
-	user := domain.User{}
-	err = s.DB.New().Debug().Model(domain.User{}).Where("id = ?", uid).Take(&user).Error
+	user := User{}
+	err = s.DB.New().Debug().Model(User{}).Where("id = ?", uid).Take(&user).Error
 	if err != nil {
 		errList["Unauthorized"] = "Unauthorized"
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -53,8 +51,8 @@ func (s *Server) LikePost(c *fiber.Ctx) error {
 	}
 
 	// check if the post exist:
-	post := domain.Post{}
-	err = s.DB.New().Debug().Model(domain.Post{}).Where("id = ?", pid).Take(&post).Error
+	post := Post{}
+	err = s.DB.New().Debug().Model(Post{}).Where("id = ?", pid).Take(&post).Error
 	if err != nil {
 		errList["Unauthorized"] = "Unauthorized"
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -63,13 +61,13 @@ func (s *Server) LikePost(c *fiber.Ctx) error {
 		})
 	}
 
-	like := domain.Like{}
+	like := Like{}
 	like.UserID = user.ID
 	like.PostID = post.ID
 
 	likeCreated, err := like.SaveLike(s.DB)
 	if err != nil {
-		formattedError := helper.FormatError(err.Error())
+		formattedError := FormatError(err.Error())
 		errList = formattedError
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
@@ -100,8 +98,8 @@ func (s *Server) GetLikes(c *fiber.Ctx) error {
 	}
 
 	// Check if the post exist:
-	post := domain.Post{}
-	err = s.DB.Debug().New().Model(domain.Post{}).Where("id = ?", pid).Take(&post).Error
+	post := Post{}
+	err = s.DB.Debug().New().Model(Post{}).Where("id = ?", pid).Take(&post).Error
 	if err != nil {
 		errList["No_post"] = "No Post Found"
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -110,7 +108,7 @@ func (s *Server) GetLikes(c *fiber.Ctx) error {
 		})
 	}
 
-	like := domain.Like{}
+	like := Like{}
 	likes, err := like.GetLikesInfo(s.DB, pid)
 	if err != nil {
 		errList["No_likes"] = "No Likes found"
@@ -158,8 +156,8 @@ func (s *Server) UnLikePost(c *fiber.Ctx) error {
 	}
 
 	// Check if the post exist
-	like := domain.Like{}
-	err = s.DB.Debug().New().Model(domain.Like{}).Where("id = ?", lid).Take(&like).Error
+	like := Like{}
+	err = s.DB.Debug().New().Model(Like{}).Where("id = ?", lid).Take(&like).Error
 	if err != nil {
 		errList["No_like"] = "No Like Found"
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{

@@ -1,7 +1,6 @@
-package domain
+package app
 
 import (
-	"github.com/SemmiDev/go-blog/internal/helper"
 	"html"
 	"log"
 	"strings"
@@ -33,7 +32,7 @@ func (u *User) PublicUser() *PublicUser {
 }
 
 func (u *User) BeforeSave() error {
-	hashedPassword, err := helper.HashPassword(u.Password)
+	hashedPassword, err := HashPassword(u.Password)
 	log.Println("--------------------------------")
 	log.Println(u.Password)
 	log.Println(hashedPassword)

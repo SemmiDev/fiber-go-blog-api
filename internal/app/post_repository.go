@@ -1,4 +1,4 @@
-package domain
+package app
 
 import (
 	"github.com/jinzhu/gorm"

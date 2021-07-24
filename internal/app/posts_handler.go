@@ -1,15 +1,13 @@
-package controllers
+package app
 
 import (
-	"github.com/SemmiDev/go-blog/internal/app/domain"
-	"github.com/SemmiDev/go-blog/internal/helper"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 )
 
 func (s *Server) CreatePost(c *fiber.Ctx) error {
 	errList = map[string]string{}
-	post := domain.Post{}
+	post := Post{}
 
 	err := c.BodyParser(&post)
 	if err != nil {
@@ -38,8 +36,8 @@ func (s *Server) CreatePost(c *fiber.Ctx) error {
 	}
 
 	// check if the user exist:
-	user := domain.User{}
-	err = s.DB.Debug().Model(domain.User{}).Where("id = ?", userId).Take(&user).Error
+	user := User{}
+	err = s.DB.Debug().Model(User{}).Where("id = ?", userId).Take(&user).Error
 	if err != nil {
 		errList["Unauthorized"] = "Unauthorized"
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -61,7 +59,7 @@ func (s *Server) CreatePost(c *fiber.Ctx) error {
 
 	postCreated, err := post.SavePost(s.DB)
 	if err != nil {
-		errList := helper.FormatError(err.Error())
+		errList := FormatError(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
 			"message": errList,
@@ -76,7 +74,7 @@ func (s *Server) CreatePost(c *fiber.Ctx) error {
 
 func (s *Server) GetPosts(c *fiber.Ctx) error {
 
-	post := domain.Post{}
+	post := Post{}
 
 	posts, err := post.FindAllPosts(s.DB)
 	if err != nil {
@@ -105,7 +103,7 @@ func (s *Server) GetPost(c *fiber.Ctx) error {
 		})
 	}
 
-	post := domain.Post{}
+	post := Post{}
 
 	postReceived, err := post.FindPostByID(s.DB, pid)
 	if err != nil {
@@ -156,8 +154,8 @@ func (s *Server) UpdatePost(c *fiber.Ctx) error {
 	}
 
 	//Check if the post exist
-	origPost := domain.Post{}
-	err = s.DB.New().Debug().Model(domain.Post{}).Where("id = ?", pid).Take(&origPost).Error
+	origPost := Post{}
+	err = s.DB.New().Debug().Model(Post{}).Where("id = ?", pid).Take(&origPost).Error
 	if err != nil {
 		errList["No_post"] = "No Post Found"
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -175,7 +173,7 @@ func (s *Server) UpdatePost(c *fiber.Ctx) error {
 	}
 
 	// Start processing the request data
-	post := domain.Post{}
+	post := Post{}
 	err = c.BodyParser(&post)
 	if err != nil {
 		errList["Unmarshal_error"] = "Cannot unmarshal body"
@@ -200,7 +198,7 @@ func (s *Server) UpdatePost(c *fiber.Ctx) error {
 
 	postUpdated, err := post.UpdateAPost(s.DB)
 	if err != nil {
-		errList := helper.FormatError(err.Error())
+		errList := FormatError(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
 			"message": errList,
@@ -242,8 +240,8 @@ func (s *Server) DeletePost(c *fiber.Ctx) error {
 	}
 
 	// Check if the post exist
-	post := domain.Post{}
-	err = s.DB.New().Model(domain.Post{}).Where("id = ?", pid).Take(&post).Error
+	post := Post{}
+	err = s.DB.New().Model(Post{}).Where("id = ?", pid).Take(&post).Error
 	if err != nil {
 		errList["No_post"] = "No Post Found"
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -270,8 +268,8 @@ func (s *Server) DeletePost(c *fiber.Ctx) error {
 		})
 	}
 
-	comment := domain.Comment{}
-	like := domain.Like{}
+	comment := Comment{}
+	like := Like{}
 
 	_, err = comment.DeletePostComments(s.DB, pid)
 	if err != nil {
@@ -307,7 +305,7 @@ func (s *Server) GetUserPosts(c *fiber.Ctx) error {
 		})
 	}
 
-	post := domain.Post{}
+	post := Post{}
 	posts, err := post.FindUserPosts(s.DB, uid)
 	if err != nil {
 		errList["No_post"] = "No Post Found"

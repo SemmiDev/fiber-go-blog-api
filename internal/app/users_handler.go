@@ -1,8 +1,6 @@
-package controllers
+package app
 
 import (
-	"github.com/SemmiDev/go-blog/internal/app/domain"
-	"github.com/SemmiDev/go-blog/internal/helper"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -11,7 +9,7 @@ import (
 
 func (s *Server) CreateUser(c *fiber.Ctx) error {
 	errList = map[string]string{}
-	var user domain.User
+	var user User
 
 	err := c.BodyParser(&user)
 	if err != nil {
@@ -33,7 +31,7 @@ func (s *Server) CreateUser(c *fiber.Ctx) error {
 
 	userCreated, err := user.SaveUser(s.DB)
 	if err != nil {
-		formattedError := helper.FormatError(err.Error())
+		formattedError := FormatError(err.Error())
 		errList = formattedError
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
@@ -50,7 +48,7 @@ func (s *Server) CreateUser(c *fiber.Ctx) error {
 func (s *Server) GetUsers(c *fiber.Ctx) error {
 	//clear previous error if any
 	errList = map[string]string{}
-	user := domain.User{}
+	user := User{}
 
 	users, err := user.FindAllUsers(s.DB)
 	if err != nil {
@@ -80,7 +78,7 @@ func (s *Server) GetUser(c *fiber.Ctx) error {
 		})
 	}
 
-	user := domain.User{}
+	user := User{}
 	userGotten, err := user.FindUserByID(s.DB, uid)
 	if err != nil {
 		errList["No_user"] = "No User Found"
@@ -153,8 +151,8 @@ func (s *Server) UpdateUser(c *fiber.Ctx) error {
 	}
 
 	// Check for previous details
-	formerUser := domain.User{}
-	err = s.DB.New().Debug().Model(domain.User{}).Where("id = ?", uid).Take(&formerUser).Error
+	formerUser := User{}
+	err = s.DB.New().Debug().Model(User{}).Where("id = ?", uid).Take(&formerUser).Error
 	if err != nil {
 		errList["User_invalid"] = "The user is does not exist"
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
@@ -163,7 +161,7 @@ func (s *Server) UpdateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	newUser := domain.User{}
+	newUser := User{}
 
 	//When current password has content.
 	if requestBody["current_password"] == "" && requestBody["new_password"] != "" {
@@ -193,7 +191,7 @@ func (s *Server) UpdateUser(c *fiber.Ctx) error {
 		}
 
 		//if they do, check that the former password is correct
-		err = helper.CheckPassword(requestBody["current_password"], formerUser.Password)
+		err = CheckPassword(requestBody["current_password"], formerUser.Password)
 		if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 			errList["Password_mismatch"] = "The password not correct"
 			return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
@@ -206,7 +204,7 @@ func (s *Server) UpdateUser(c *fiber.Ctx) error {
 		newUser.Username = formerUser.Username //remember, you cannot update the username
 		newUser.Email = requestBody["email"]
 
-		hashed, _ := helper.HashPassword(requestBody["new_password"])
+		hashed, _ := HashPassword(requestBody["new_password"])
 		newUser.Password = hashed
 	} else {
 		newUser.Password = formerUser.Password
@@ -231,7 +229,7 @@ func (s *Server) UpdateUser(c *fiber.Ctx) error {
 
 	updatedUser, err := newUser.UpdateAUser(s.DB, uid)
 	if err != nil {
-		errList := helper.FormatError(err.Error())
+		errList := FormatError(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
 			"message": errList,
@@ -282,7 +280,7 @@ func (s *Server) DeleteUser(c *fiber.Ctx) error {
 		})
 	}
 
-	user := domain.User{}
+	user := User{}
 	_, err = user.DeleteAUser(s.DB, uid)
 	if err != nil {
 		errList["Other_error"] = "Please try again later"
@@ -293,9 +291,9 @@ func (s *Server) DeleteUser(c *fiber.Ctx) error {
 	}
 
 	// Also delete the posts, likes and the comments that this user created if any:
-	comment := domain.Comment{}
-	like := domain.Like{}
-	post := domain.Post{}
+	comment := Comment{}
+	like := Like{}
+	post := Post{}
 
 	_, err = post.DeleteUserPosts(s.DB, uid)
 	if err != nil {

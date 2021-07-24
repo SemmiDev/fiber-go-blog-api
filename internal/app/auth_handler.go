@@ -1,10 +1,8 @@
-package controllers
+package app
 
 import (
 	"errors"
 	"fmt"
-	"github.com/SemmiDev/go-blog/internal/app/domain"
-	"github.com/SemmiDev/go-blog/internal/helper"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/gorm"
@@ -13,7 +11,7 @@ import (
 )
 
 func (s *Server) Login(c *fiber.Ctx) error {
-	var user domain.User
+	var user User
 	err := c.BodyParser(&user)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -184,15 +182,15 @@ func (s *Server) Refresh(c *fiber.Ctx) error {
 	}
 }
 
-func GetUserByEmailAndPassword(db *gorm.DB, u *domain.User) (*domain.User, error) {
-	var user domain.User
+func GetUserByEmailAndPassword(db *gorm.DB, u *User) (*User, error) {
+	var user User
 	err := db.New().Debug().Where("email = ?", u.Email).Take(&user).Error
 	if gorm.IsRecordNotFoundError(err) {
 		return nil, errors.New("user not found")
 	}
 
 	// verify
-	if err := helper.CheckPassword(u.Password, user.Password); err != nil {
+	if err := CheckPassword(u.Password, user.Password); err != nil {
 		return nil, errors.New(err.Error())
 	}
 

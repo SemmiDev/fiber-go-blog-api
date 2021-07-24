@@ -1,8 +1,6 @@
-package controllers
+package app
 
 import (
-	"github.com/SemmiDev/go-blog/internal/app/domain"
-	"github.com/SemmiDev/go-blog/internal/helper"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 )
@@ -41,8 +39,8 @@ func (s *Server) CreateComment(c *fiber.Ctx) error {
 	}
 
 	// check if the user exist:
-	user := domain.User{}
-	err = s.DB.New().New().Debug().Model(domain.User{}).Where("id = ?", uid).Take(&user).Error
+	user := User{}
+	err = s.DB.New().New().Debug().Model(User{}).Where("id = ?", uid).Take(&user).Error
 	if err != nil {
 		errList["Unauthorized"] = "Unauthorized"
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -52,8 +50,8 @@ func (s *Server) CreateComment(c *fiber.Ctx) error {
 	}
 
 	// check if the post exist:
-	post := domain.Post{}
-	err = s.DB.New().New().Debug().Model(domain.Post{}).Where("id = ?", pid).Take(&post).Error
+	post := Post{}
+	err = s.DB.New().New().Debug().Model(Post{}).Where("id = ?", pid).Take(&post).Error
 	if err != nil {
 		errList["Unauthorized"] = "Unauthorized"
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -62,7 +60,7 @@ func (s *Server) CreateComment(c *fiber.Ctx) error {
 		})
 	}
 
-	comment := domain.Comment{}
+	comment := Comment{}
 	err = c.BodyParser(&comment)
 	if err != nil {
 		errList["Unmarshal_error"] = "Cannot unmarshal body"
@@ -87,7 +85,7 @@ func (s *Server) CreateComment(c *fiber.Ctx) error {
 	}
 	commentCreated, err := comment.SaveComment(s.DB)
 	if err != nil {
-		formattedError := helper.FormatError(err.Error())
+		formattedError := FormatError(err.Error())
 		errList = formattedError
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success": false,
@@ -118,8 +116,8 @@ func (s *Server) GetComments(c *fiber.Ctx) error {
 	}
 
 	// check if the post exist:
-	post := domain.Post{}
-	err = s.DB.New().Debug().Model(domain.Post{}).Where("id = ?", pid).Take(&post).Error
+	post := Post{}
+	err = s.DB.New().Debug().Model(Post{}).Where("id = ?", pid).Take(&post).Error
 	if err != nil {
 		errList["No_post"] = "No post found"
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -128,7 +126,7 @@ func (s *Server) GetComments(c *fiber.Ctx) error {
 		})
 	}
 
-	comment := domain.Comment{}
+	comment := Comment{}
 
 	comments, err := comment.GetComments(s.DB, pid)
 	if err != nil {
@@ -180,8 +178,8 @@ func (s *Server) UpdateComment(c *fiber.Ctx) error {
 	}
 
 	//Check if the post exist
-	origComment := domain.Comment{}
-	err = s.DB.New().Debug().Model(domain.Post{}).Where("id = ?", pid).Take(&origComment).Error
+	origComment := Comment{}
+	err = s.DB.New().Debug().Model(Post{}).Where("id = ?", pid).Take(&origComment).Error
 	if err != nil {
 		errList["No_comment"] = "No Comment Found"
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -199,7 +197,7 @@ func (s *Server) UpdateComment(c *fiber.Ctx) error {
 	}
 
 	// Start processing the request data
-	comment := domain.Comment{}
+	comment := Comment{}
 	err = c.BodyParser(&comment)
 	if err != nil {
 		errList["Unmarshal_error"] = "Cannot unmarshal body"
@@ -225,7 +223,7 @@ func (s *Server) UpdateComment(c *fiber.Ctx) error {
 
 	commentUpdated, err := comment.UpdateAComment(s.DB)
 	if err != nil {
-		formattedError := helper.FormatError(err.Error())
+		formattedError := FormatError(err.Error())
 		errList = formattedError
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
@@ -271,8 +269,8 @@ func (s *Server) DeleteComment(c *fiber.Ctx) error {
 	}
 
 	// Check if the comment exist
-	comment := domain.Comment{}
-	err = s.DB.New().Debug().Model(domain.Comment{}).Where("id = ?", cid).Take(&comment).Error
+	comment := Comment{}
+	err = s.DB.New().Debug().Model(Comment{}).Where("id = ?", cid).Take(&comment).Error
 	if err != nil {
 		errList["No_post"] = "No Post Found"
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{

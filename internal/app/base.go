@@ -1,8 +1,7 @@
-package controllers
+package app
 
 import (
 	"fmt"
-	"github.com/SemmiDev/go-blog/internal/auth"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/jinzhu/gorm"
@@ -16,15 +15,15 @@ import (
 type Server struct {
 	DB     *gorm.DB
 	Router *fiber.App
-	Rd     auth.AuthInterface
-	Tk     auth.TokenInterface
+	Rd     AuthInterface
+	Tk     TokenInterface
 }
 
 var errList = make(map[string]string)
 
 func (s *Server) Initialize(DBDriver, DbUser, DbPassword, DbPort, DbHost, DbName string,
-	rd auth.AuthInterface,
-	tk auth.TokenInterface) {
+	rd AuthInterface,
+	tk TokenInterface) {
 
 	s.Rd = rd
 	s.Tk = tk

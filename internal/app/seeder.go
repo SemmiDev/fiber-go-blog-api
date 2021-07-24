@@ -1,7 +1,6 @@
-package seeder
+package app
 
 import (
-	"github.com/SemmiDev/go-blog/internal/app/domain"
 	"github.com/jinzhu/gorm"
 	"log"
 )
@@ -10,7 +9,7 @@ import (
 //var hashed2, _ = helper.HashPassword("izzah")
 //var hashed3, _ = helper.HashPassword("sammidevizzah")
 
-var users = []domain.User{
+var users = []User{
 	{
 		Name:     "sammi",
 		Username: "sammi",
@@ -31,7 +30,7 @@ var users = []domain.User{
 	},
 }
 
-var posts = []domain.Post{
+var posts = []Post{
 	{
 		Title:   "HMMM",
 		Content: "Aku menaruhmu terlalu dalam di hati, sehingga untuk menghapusmu, aku seperti menyakiti diri sendiri uakh dei!",
@@ -53,36 +52,36 @@ func Load(db *gorm.DB) {
 	}
 
 	err = db.Debug().DropTableIfExists(
-		&domain.Post{},
-		&domain.User{},
-		&domain.Like{},
-		&domain.Comment{}).Error
+		&Post{},
+		&User{},
+		&Like{},
+		&Comment{}).Error
 	if err != nil {
 		log.Fatalf("cannot drop table: %v", err)
 	}
 	err = db.Debug().AutoMigrate(
-		&domain.Post{},
-		&domain.User{},
-		&domain.Like{},
-		&domain.Comment{}).Error
+		&Post{},
+		&User{},
+		&Like{},
+		&Comment{}).Error
 
 	if err != nil {
 		log.Fatalf("cannot migrate table: %v", err)
 	}
 
-	err = db.Debug().Model(&domain.Post{}).AddForeignKey("author_id", "users(id)", "cascade", "cascade").Error
+	err = db.Debug().Model(&Post{}).AddForeignKey("author_id", "users(id)", "cascade", "cascade").Error
 	if err != nil {
 		log.Fatalf("attaching foreign key error: %v", err)
 	}
 
 	for i := range users {
-		err = db.Debug().Model(&domain.User{}).Create(&users[i]).Error
+		err = db.Debug().Model(&User{}).Create(&users[i]).Error
 		if err != nil {
 			log.Fatalf("cannot seed users table: %v", err)
 		}
 		posts[i].AuthorID = users[i].ID
 
-		err = db.Debug().Model(&domain.Post{}).Create(&posts[i]).Error
+		err = db.Debug().Model(&Post{}).Create(&posts[i]).Error
 		if err != nil {
 			log.Fatalf("cannot seed posts table: %v", err)
 		}

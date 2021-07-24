@@ -2,25 +2,22 @@ package main
 
 import (
 	"fmt"
-	"github.com/SemmiDev/go-blog/internal/app/controllers"
-	"github.com/SemmiDev/go-blog/internal/auth"
-	"github.com/SemmiDev/go-blog/internal/config"
-	"github.com/SemmiDev/go-blog/internal/seeder"
+	"github.com/SemmiDev/go-blog/internal/app"
 	"log"
 	"os"
 )
 
-var server = controllers.Server{}
+var server = app.Server{}
 
 func main() {
-	cfg := config.LoadConfig()
+	cfg := app.LoadConfig()
 
-	redisService, err := auth.NewRedisDB(cfg.RedisHost, cfg.RedisPort, cfg.RedisPassword)
+	redisService, err := app.NewRedisDB(cfg.RedisHost, cfg.RedisPort, cfg.RedisPassword)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	token := auth.NewToken()
+	token := app.NewToken()
 	server.Initialize(
 		cfg.DBDriver,
 		cfg.DBUser,
@@ -32,7 +29,7 @@ func main() {
 		token,
 	)
 
-	seeder.Load(server.DB)
+	app.Load(server.DB)
 	apiPort := fmt.Sprintf(":%s", os.Getenv("API_PORT"))
 	fmt.Printf("Listening to port %s", apiPort)
 
