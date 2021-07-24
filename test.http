@@ -1,0 +1,79 @@
+### HELLOOW
+GET http://localhost:9090/api/v1
+Accept: text/plain
+
+### LOGIN
+POST http://localhost:9090/api/v1/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "sam12345@gmail.com",
+  "password": "sam12345"
+}
+
+### CREATE A  USER
+POST localhost:9090/api/v1/users
+Accept: application/json
+Content-Type: application/json
+
+{
+   "name" : "sam12345",
+   "username" : "sam12345",
+   "email" : "sam12345@gmail.com",
+   "password" : "sam12345"
+}
+
+### GET USER BY ID
+GET http://localhost:9090/api/v1/users/1
+Accept: application/json
+Content-Type: application/json
+
+
+### GET USERS
+GET http://localhost:9090/api/v1/users
+Accept: application/json
+Content-Type: application/json
+
+### GET POST BY ID
+GET http://localhost:9090/api/v1/posts/1
+Accept: application/json
+
+### GET POSTS
+GET http://localhost:9090/api/v1/posts
+Accept: application/json
+
+### GET USER POSTS
+GET http://localhost:9090/api/v1/user_posts/1
+Accept: application/json
+
+### GET LIKE BY ID
+GET http://localhost:9090/api/v1/likes/1
+Accept: application/json
+
+### DELETE USER BY ID
+DELETE http://localhost:9090/api/v1/users/4
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NfdXVpZCI6ImJjNTJkOTU3LWM1M2EtNDc0Yy05MTk2LWZmZDQ3YTQ1ZjZlZiIsImF1dGhvcml6ZWQiOnRydWUsImV4cCI6MTYyNzExNzAwNywidXNlcl9pZCI6NH0.RX8NxZwc35TfAHn5NT2b6O_jxjqXvRC7Vp7e8fI8k1w
+
+### UPDATE USER BY ID
+PUT http://localhost:9090/api/v1/users/4
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NfdXVpZCI6IjY4ZTA3ODk3LTAxMzEtNDIwZi04MDIxLTRhZmEwMWY0YjY5NCIsImF1dGhvcml6ZWQiOnRydWUsImV4cCI6MTYyNzExODYzNywidXNlcl9pZCI6NH0.iAEccMAp8c0-9NI8Za5_ugB-5ErMDBSHMttqIUkHIxo
+Content-Type: application/json
+
+{
+   "current_password": "sam12345",
+   "new_password": "sam1234567",
+   "email": "sammide_update@gmail.com"
+}
+
+### LOGIN WITH UPDATED USER
+POST http://localhost:9090/api/v1/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "sammide_update@gmail.com",
+  "password": "sam1234567"
+}
