@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/SemmiDev/go-blog/internal/app"
+	"github.com/SemmiDev/go-blog/app"
 	"log"
 	"os"
 )
